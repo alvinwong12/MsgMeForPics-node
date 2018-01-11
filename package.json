@@ -1,0 +1,25 @@
+{
+  "name": "msgmeforpics",
+  "version": "1.0.0",
+  "description": "Server for handling twilio requests",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "set-dev": "setx NODE_ENV development",
+    "set-test": "setx NODE_ENV test"
+  },
+  "author": "Alvin",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.2",
+    "moment": "^2.20.1",
+    "morgan": "^1.9.0",
+    "strip-ansi": "^4.0.0",
+    "twilio": "^3.11.0",
+    "winston": "^2.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.15.0"
+  }
+}

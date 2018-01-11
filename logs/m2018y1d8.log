@@ -1,0 +1,1070 @@
+2018-01-08T18:46:33.814Z - info: Listening on port 3000
+2018-01-08T18:50:27.979Z - info: Listening on port 3000
+2018-01-08T18:51:53.934Z - info: GET / 200 3.956 ms - 12
+
+2018-01-08T18:54:59.910Z - error: The From phone number +16474926563 is not a valid, SMS-capable inbound phone number or short code for your account.
+2018-01-08T18:57:16.665Z - error: A 'From' phone number is required.
+2018-01-08T18:58:00.300Z - error: The From phone number +16474926563 is not a valid, SMS-capable inbound phone number or short code for your account.
+2018-01-08T19:00:50.520Z - error: The From phone number +16474926563 is not a valid, SMS-capable inbound phone number or short code for your account., Status: 400
+2018-01-08T19:04:17.567Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-08T19:04:17.581Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-08T19:04:17.583Z - error: The From phone number +16474926563 is not a valid, SMS-capable inbound phone number or short code for your account., Status: 400
+2018-01-08T19:04:52.668Z - info: SM7833d0eabeef46bc8c24bd685d0ea53d
+2018-01-08T19:07:20.467Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-08T19:07:20.476Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-08T19:07:20.477Z - error: The From phone number +15005550000 is not a valid, SMS-capable inbound phone number or short code for your account., Status: 400
+2018-01-08T19:08:14.541Z - info: SM480bd12ed5be4878b01f3697a77398d2
+2018-01-08T19:09:23.359Z - info: Status: queued. SM1a36960da1df4fd282e989e737bad3c1
+2018-01-08T21:12:31.409Z - info: Listening on port 3000
+2018-01-08T21:12:32.596Z - info: Status: queued. SM019ace2f91af45b9b4dfabfab7728f8a
+2018-01-08T21:14:52.999Z - info: Listening on port 3000
+2018-01-08T21:14:53.454Z - info: Status: queued. SM690604dc4775497291c8bf341a77a301
+2018-01-08T21:15:35.559Z - info: 
+2018-01-08T21:15:35.566Z - info: GET / 200 7.732 ms - 12
+
+2018-01-08T21:17:04.596Z - info: Listening on port 3000
+2018-01-08T21:17:04.999Z - info: Status: queued. SM833f49b8490b4f128b5fb019f79b8519
+2018-01-08T21:17:05.972Z - info:  objectMode=false, highWaterMark=16384, head=null, tail=null, length=0, length=0, pipes=null, pipesCount=0, flowing=null, ended=false, endEmitted=false, reading=false, sync=true, needReadable=false, emittedReadable=false, readableListening=false, resumeScheduled=false, destroyed=false, defaultEncoding=utf8, awaitDrain=0, readingMore=true, decoder=null, encoding=null, readable=true, domain=null, , _eventsCount=0, _maxListeners=undefined, connecting=false, _hadError=false, reading=true, $ref=$["socket"], onread=function onread(nread, buffer) {
+  var handle = this;
+  var self = handle.owner;
+  assert(handle === self._handle, 'handle != self._handle');
+
+  self._unrefTimer();
+
+  debug('onread', nread);
+
+  if (nread > 0) {
+    debug('got data');
+
+    // read success.
+    // In theory (and in practice) calling readStop right now
+    // will prevent this from being called again until _read() gets
+    // called again.
+
+    // Optimization: emit the original buffer with end points
+    var ret = self.push(buffer);
+
+    if (handle.reading && !ret) {
+      handle.reading = false;
+      debug('readStop');
+      var err = handle.readStop();
+      if (err)
+        self.destroy(errnoException(err, 'read'));
+    }
+    return;
+  }
+
+  // if we didn't get any bytes, that doesn't necessarily mean EOF.
+  // wait for the next one.
+  if (nread === 0) {
+    debug('not any data, keep waiting');
+    return;
+  }
+
+  // Error, possibly EOF.
+  if (nread !== uv.UV_EOF) {
+    return self.destroy(errnoException(nread, 'read'));
+  }
+
+  debug('EOF');
+
+  // push a null to signal the end of data.
+  // Do it before `maybeDestroy` for correct order of events:
+  // `end` -> `close`
+  self.push(null);
+
+  if (self._readableState.length === 0) {
+    self.readable = false;
+    maybeDestroy(self);
+  }
+
+  // internal end event so that we know that the actual socket
+  // is no longer readable, and we can start the shutdown
+  // procedure. No need to wait for all the data to be consumed.
+  self.emit('_socketEnd');
+}, onconnection=null, writeQueueSize=0, _consumed=true, _parent=null, _host=null, objectMode=false, highWaterMark=16384, head=null, tail=null, length=0, length=0, pipes=null, pipesCount=0, flowing=true, ended=false, endEmitted=false, reading=true, sync=false, needReadable=true, emittedReadable=false, readableListening=false, resumeScheduled=false, destroyed=false, defaultEncoding=utf8, awaitDrain=0, readingMore=false, decoder=null, encoding=null, readable=true, domain=null, end=[function () { [native code] }, function () { [native code] }], finish=function onSocketFinish() {
+  // If still connecting - defer handling 'finish' until 'connect' will happen
+  if (this.connecting) {
+    debug('osF: not yet connected');
+    return this.once('connect', onSocketFinish);
+  }
+
+  debug('onSocketFinish');
+  if (!this.readable || this._readableState.ended) {
+    debug('oSF: ended, destroy', this._readableState);
+    return this.destroy();
+  }
+
+  debug('oSF: not ended, call shutdown()');
+
+  // otherwise, just shutdown, or destroy() if not possible
+  if (!this._handle || !this._handle.shutdown)
+    return this.destroy();
+
+  var req = new ShutdownWrap();
+  req.oncomplete = afterShutdown;
+  req.handle = this._handle;
+  // node::ShutdownWrap isn't instantiated and attached to the JS instance of
+  // ShutdownWrap above until shutdown() is called. So don't set the init
+  // trigger id until now.
+  setInitTriggerId(this[async_id_symbol]);
+  var err = this._handle.shutdown(req);
+
+  if (err)
+    return this.destroy(errnoException(err, 'shutdown'));
+}, _socketEnd=function onSocketEnd() {
+  // XXX Should not have to do as much crap in this function.
+  // ended should already be true, since this is called *after*
+  // the EOF errno and onread has eof'ed
+  debug('onSocketEnd', this._readableState);
+  this._readableState.ended = true;
+  if (this._readableState.endEmitted) {
+    this.readable = false;
+    maybeDestroy(this);
+  } else {
+    this.once('end', function end() {
+      this.readable = false;
+      maybeDestroy(this);
+    });
+    this.read(0);
+  }
+
+  if (!this.allowHalfOpen) {
+    this.write = writeAfterFIN;
+    this.destroySoon();
+  }
+}, drain=[function ondrain() {
+  if (this._httpMessage) this._httpMessage.emit('drain');
+}, function () { [native code] }], timeout=function socketOnTimeout() {
+  var req = this.parser && this.parser.incoming;
+  var reqTimeout = req && !req.complete && req.emit('timeout', this);
+  var res = this._httpMessage;
+  var resTimeout = res && res.emit('timeout', this);
+  var serverTimeout = this.server.emit('timeout', this);
+
+  if (!reqTimeout && !resTimeout && !serverTimeout)
+    this.destroy();
+}, data=function () { [native code] }, error=[function socketOnError(e) {
+  // Ignore further errors
+  this.removeListener('error', socketOnError);
+  this.on('error', () => {});
+
+  if (!this.server.emit('clientError', e, this))
+    this.destroy(e);
+}, function onevent(arg1) {
+    var args = new Array(arguments.length)
+    var ee = this
+    var err = event === 'error'
+      ? arg1
+      : null
+
+    // copy args to prevent arguments escaping scope
+    for (var i = 0; i < args.length; i++) {
+      args[i] = arguments[i]
+    }
+
+    done(err, ee, event, args)
+  }], close=[function () { [native code] }, function onServerResponseClose() {
+  // EventEmitter.emit makes a copy of the 'close' listeners array before
+  // calling the listeners. detachSocket() unregisters onServerResponseClose
+  // but if detachSocket() is called, directly or indirectly, by a 'close'
+  // listener, onServerResponseClose is still in that copy of the listeners
+  // array. That is, in the example below, b still gets called even though
+  // it's been removed by a:
+  //
+  //   var EventEmitter = require('events');
+  //   var obj = new EventEmitter();
+  //   obj.on('event', a);
+  //   obj.on('event', b);
+  //   function a() { obj.removeListener('event', b) }
+  //   function b() { throw "BAM!" }
+  //   obj.emit('event');  // throws
+  //
+  // Ergo, we need to deal with stale 'close' events and handle the case
+  // where the ServerResponse object has already been deconstructed.
+  // Fortunately, that requires only a single if check. :-)
+  if (this._httpMessage) this._httpMessage.emit('close');
+}, function onevent(arg1) {
+    var args = new Array(arguments.length)
+    var ee = this
+    var err = event === 'error'
+      ? arg1
+      : null
+
+    // copy args to prevent arguments escaping scope
+    for (var i = 0; i < args.length; i++) {
+      args[i] = arguments[i]
+    }
+
+    done(err, ee, event, args)
+  }], resume=function onSocketResume() {
+  // It may seem that the socket is resumed, but this is an enemy's trick to
+  // deceive us! `resume` is emitted asynchronously, and may be called from
+  // `incoming.readStart()`. Stop the socket again here, just to preserve the
+  // state.
+  //
+  // We don't care about stream semantics for the consumed socket anyway.
+  if (this._paused) {
+    this.pause();
+    return;
+  }
+
+  if (this._handle && !this._handle.reading) {
+    this._handle.reading = true;
+    this._handle.readStart();
+  }
+}, pause=function onSocketPause() {
+  if (this._handle && this._handle.reading) {
+    this._handle.reading = false;
+    this._handle.readStop();
+  }
+}, _eventsCount=10, _maxListeners=undefined, objectMode=false, highWaterMark=16384, finalCalled=false, needDrain=false, ending=false, ended=false, finished=false, destroyed=false, decodeStrings=false, defaultEncoding=utf8, length=0, writing=false, corked=0, sync=true, bufferProcessing=false, onwrite=function () { [native code] }, writecb=null, writelen=0, bufferedRequest=null, lastBufferedRequest=null, pendingcb=0, prefinished=false, errorEmitted=false, bufferedRequestCount=0, next=null, entry=null, finish=function () { [native code] }, writable=true, allowHalfOpen=true, _bytesDispatched=0, _sockname=null, _pendingData=null, _pendingEncoding=, domain=null, request=function (req, res, next) {
+    app.handle(req, res, next);
+  }, connection=function connectionListener(socket) {
+  debug('SERVER new http connection');
+
+  httpSocketSetup(socket);
+
+  // Ensure that the server property of the socket is correctly set.
+  // See https://github.com/nodejs/node/issues/13435
+  if (socket.server === null)
+    socket.server = this;
+
+  // If the user has added a listener to the server,
+  // request, or response, then it's their responsibility.
+  // otherwise, destroy on timeout by default
+  if (this.timeout)
+    socket.setTimeout(this.timeout);
+  socket.on('timeout', socketOnTimeout);
+
+  var parser = parsers.alloc();
+  parser.reinitialize(HTTPParser.REQUEST);
+  parser.socket = socket;
+  socket.parser = parser;
+  parser.incoming = null;
+
+  // Propagate headers limit from server instance to parser
+  if (typeof this.maxHeadersCount === 'number') {
+    parser.maxHeaderPairs = this.maxHeadersCount << 1;
+  } else {
+    // Set default value because parser may be reused from FreeList
+    parser.maxHeaderPairs = 2000;
+  }
+
+  var state = {
+    onData: null,
+    onEnd: null,
+    onClose: null,
+    onDrain: null,
+    outgoing: [],
+    incoming: [],
+    // `outgoingData` is an approximate amount of bytes queued through all
+    // inactive responses. If more data than the high watermark is queued - we
+    // need to pause TCP socket/HTTP parser, and wait until the data will be
+    // sent to the client.
+    outgoingData: 0,
+    keepAliveTimeoutSet: false
+  };
+  state.onData = socketOnData.bind(undefined, this, socket, parser, state);
+  state.onEnd = socketOnEnd.bind(undefined, this, socket, parser, state);
+  state.onClose = socketOnClose.bind(undefined, socket, state);
+  state.onDrain = socketOnDrain.bind(undefined, socket, state);
+  socket.on('data', state.onData);
+  socket.on('error', socketOnError);
+  socket.on('end', state.onEnd);
+  socket.on('close', state.onClose);
+  socket.on('drain', state.onDrain);
+  parser.onIncoming = parserOnIncoming.bind(undefined, this, socket, state);
+
+  // We are consuming socket, so it won't get any actual data
+  socket.on('resume', onSocketResume);
+  socket.on('pause', onSocketPause);
+
+  // Override on to unconsume on `data`, `readable` listeners
+  socket.on = socketOnWrap;
+
+  // We only consume the socket if it has never been consumed before.
+  var external = socket._handle._externalStream;
+  if (!socket._handle._consumed && external) {
+    parser._consumed = true;
+    socket._handle._consumed = true;
+    parser.consume(external);
+  }
+  parser[kOnExecute] =
+    onParserExecute.bind(undefined, this, socket, parser, state);
+
+  socket._paused = false;
+}, _eventsCount=2, _maxListeners=undefined, _connections=1, reading=false, $ref=$["socket"]["server"], onread=null, onconnection=function onconnection(err, clientHandle) {
+  var handle = this;
+  var self = handle.owner;
+
+  debug('onconnection');
+
+  if (err) {
+    self.emit('error', errnoException(err, 'accept'));
+    return;
+  }
+
+  if (self.maxConnections && self._connections >= self.maxConnections) {
+    clientHandle.close();
+    return;
+  }
+
+  var socket = new Socket({
+    handle: clientHandle,
+    allowHalfOpen: self.allowHalfOpen,
+    pauseOnCreate: self.pauseOnConnect
+  });
+  socket.readable = socket.writable = true;
+
+
+  self._connections++;
+  socket.server = self;
+  socket._server = self;
+
+  DTRACE_NET_SERVER_CONNECTION(socket);
+  ;
+  COUNTER_NET_SERVER_CONNECTION(socket);
+  self.emit('connection', socket);
+}, writeQueueSize=0, _usingSlaves=false, _slaves=[], _unref=false, allowHalfOpen=true, pauseOnConnect=false, httpAllowHalfOpen=false, timeout=120000, keepAliveTimeout=5000, _pendingResponseData=0, maxHeadersCount=null, _connectionKey=6::::3000, $ref=$["socket"]["server"], _idleTimeout=120000, $ref=$["socket"], $ref=$["socket"], 0=function listOnTimeout() {
+  var list = this._list;
+  var msecs = list.msecs;
+
+  if (list.nextTick) {
+    list.nextTick = false;
+    process.nextTick(listOnTimeoutNT, list);
+    return;
+  }
+
+  debug('timeout callback %d', msecs);
+
+  var now = TimerWrap.now();
+  debug('now: %d', now);
+
+  var diff, timer;
+  while (timer = L.peek(list)) {
+    diff = now - timer._idleStart;
+
+    // Check if this loop iteration is too early for the next timer.
+    // This happens if there are more timers scheduled for later in the list.
+    if (diff < msecs) {
+      var timeRemaining = msecs - (TimerWrap.now() - timer._idleStart);
+      if (timeRemaining < 0) {
+        timeRemaining = 1;
+      }
+      this.start(timeRemaining);
+      debug('%d list wait because diff is %d', msecs, diff);
+      return;
+    }
+
+    // The actual logic for when a timeout happens.
+
+    L.remove(timer);
+    assert(timer !== L.peek(list));
+
+    if (!timer._onTimeout) {
+      if (async_hook_fields[kDestroy] > 0 && !timer._destroyed &&
+            typeof timer[async_id_symbol] === 'number') {
+        emitDestroy(timer[async_id_symbol]);
+        timer._destroyed = true;
+      }
+      continue;
+    }
+
+    var domain = timer.domain;
+    if (domain) {
+
+      // If the timer callback throws and the
+      // domain or uncaughtException handler ignore the exception,
+      // other timers that expire on this tick should still run.
+      //
+      // https://github.com/nodejs/node-v0.x-archive/issues/2631
+      if (domain._disposed)
+        continue;
+
+      domain.enter();
+    }
+
+    tryOnTimeout(timer, list);
+
+    if (domain)
+      domain.exit();
+  }
+
+  // If `L.peek(list)` returned nothing, the list was either empty or we have
+  // called all of the timer timeouts.
+  // As such, we can remove the list and clean up the TimerWrap C++ handle.
+  debug('%d list empty', msecs);
+  assert(L.isEmpty(list));
+
+  // Either refedLists[msecs] or unrefedLists[msecs] may have been removed and
+  // recreated since the reference to `list` was created. Make sure they're
+  // the same instance of the list before destroying.
+  if (list._unrefed === true && list === unrefedLists[msecs]) {
+    delete unrefedLists[msecs];
+  } else if (list === refedLists[msecs]) {
+    delete refedLists[msecs];
+  }
+
+  // Do not close the underlying handle if its ownership has changed
+  // (e.g it was unrefed in its callback).
+  if (this.owner)
+    return;
+
+  this.close();
+}, $ref=$["socket"]["_idleNext"], _unrefed=true, msecs=120000, nextTick=false, $ref=$["socket"]["_idleNext"], _idleStart=3854, _destroyed=false, 0=function parserOnHeaders(headers, url) {
+  // Once we exceeded headers limit - stop collecting them
+  if (this.maxHeaderPairs <= 0 ||
+      this._headers.length < this.maxHeaderPairs) {
+    this._headers = this._headers.concat(headers);
+  }
+  this._url += url;
+}, 1=function parserOnHeadersComplete(versionMajor, versionMinor, headers, method,
+                                 url, statusCode, statusMessage, upgrade,
+                                 shouldKeepAlive) {
+  var parser = this;
+
+  if (!headers) {
+    headers = parser._headers;
+    parser._headers = [];
+  }
+
+  if (!url) {
+    url = parser._url;
+    parser._url = '';
+  }
+
+  parser.incoming = new IncomingMessage(parser.socket);
+  parser.incoming.httpVersionMajor = versionMajor;
+  parser.incoming.httpVersionMinor = versionMinor;
+  parser.incoming.httpVersion = versionMajor + '.' + versionMinor;
+  parser.incoming.url = url;
+
+  var n = headers.length;
+
+  // If parser.maxHeaderPairs <= 0 assume that there's no limit.
+  if (parser.maxHeaderPairs > 0)
+    n = Math.min(n, parser.maxHeaderPairs);
+
+  parser.incoming._addHeaderLines(headers, n);
+
+  if (typeof method === 'number') {
+    // server only
+    parser.incoming.method = methods[method];
+  } else {
+    // client only
+    parser.incoming.statusCode = statusCode;
+    parser.incoming.statusMessage = statusMessage;
+  }
+
+  if (upgrade && parser.outgoing !== null && !parser.outgoing.upgrading) {
+    // The client made non-upgrade request, and server is just advertising
+    // supported protocols.
+    //
+    // See RFC7230 Section 6.7
+    upgrade = false;
+  }
+
+  parser.incoming.upgrade = upgrade;
+
+  var skipBody = 0; // response to HEAD or CONNECT
+
+  if (!upgrade) {
+    // For upgraded connections and CONNECT method request, we'll emit this
+    // after parser.execute so that we can capture the first part of the new
+    // protocol.
+    skipBody = parser.onIncoming(parser.incoming, shouldKeepAlive);
+  }
+
+  if (typeof skipBody !== 'number')
+    return skipBody ? 1 : 0;
+  else
+    return skipBody;
+}, 2=function parserOnBody(b, start, len) {
+  var parser = this;
+  var stream = parser.incoming;
+
+  // if the stream has already been removed, then drop it.
+  if (!stream)
+    return;
+
+  var socket = stream.socket;
+
+  // pretend this was the result of a stream._read call.
+  if (len > 0 && !stream._dumped) {
+    var slice = b.slice(start, start + len);
+    var ret = stream.push(slice);
+    if (!ret)
+      readStop(socket);
+  }
+}, 3=function parserOnMessageComplete() {
+  var parser = this;
+  var stream = parser.incoming;
+
+  if (stream) {
+    stream.complete = true;
+    // Emit any trailing headers.
+    var headers = parser._headers;
+    if (headers) {
+      parser.incoming._addHeaderLines(headers, headers.length);
+      parser._headers = [];
+      parser._url = '';
+    }
+
+    // For emit end event
+    stream.push(null);
+  }
+
+  // force to read the next incoming message
+  readStart(parser.socket);
+}, 4=function () { [native code] }, _headers=[], _url=, _consumed=true, $ref=$["socket"], $ref=$, outgoing=null, maxHeaderPairs=2000, onIncoming=function () { [native code] }, on=function socketOnWrap(ev, fn) {
+  var res = net.Socket.prototype.on.call(this, ev, fn);
+  if (!this.parser) {
+    this.on = net.Socket.prototype.on;
+    return res;
+  }
+
+  if (ev === 'data' || ev === 'readable')
+    unconsume(this.parser, this);
+
+  return res;
+}, _paused=false, read=function (n) {
+  debug('read', n);
+  n = parseInt(n, 10);
+  var state = this._readableState;
+  var nOrig = n;
+
+  if (n !== 0)
+    state.emittedReadable = false;
+
+  // if we're doing read(0) to trigger a readable event, but we
+  // already have a bunch of data in the buffer, then just trigger
+  // the 'readable' event and move on.
+  if (n === 0 &&
+      state.needReadable &&
+      (state.length >= state.highWaterMark || state.ended)) {
+    debug('read: emitReadable', state.length, state.ended);
+    if (state.length === 0 && state.ended)
+      endReadable(this);
+    else
+      emitReadable(this);
+    return null;
+  }
+
+  n = howMuchToRead(n, state);
+
+  // if we've ended, and we're now clear, then finish it up.
+  if (n === 0 && state.ended) {
+    if (state.length === 0)
+      endReadable(this);
+    return null;
+  }
+
+  // All the actual chunk generation logic needs to be
+  // *below* the call to _read.  The reason is that in certain
+  // synthetic stream cases, such as passthrough streams, _read
+  // may be a completely synchronous operation which may change
+  // the state of the read buffer, providing enough data when
+  // before there was *not* enough.
+  //
+  // So, the steps are:
+  // 1. Figure out what the state of things will be after we do
+  // a read from the buffer.
+  //
+  // 2. If that resulting state will trigger a _read, then call _read.
+  // Note that this may be asynchronous, or synchronous.  Yes, it is
+  // deeply ugly to write APIs this way, but that still doesn't mean
+  // that the Readable class should behave improperly, as streams are
+  // designed to be sync/async agnostic.
+  // Take note if the _read call is sync or async (ie, if the read call
+  // has returned yet), so that we know whether or not it's safe to emit
+  // 'readable' etc.
+  //
+  // 3. Actually pull the requested chunks out of the buffer and return.
+
+  // if we need a readable event, then we need to do some reading.
+  var doRead = state.needReadable;
+  debug('need readable', doRead);
+
+  // if we currently have less than the highWaterMark, then also read some
+  if (state.length === 0 || state.length - n < state.highWaterMark) {
+    doRead = true;
+    debug('length less than watermark', doRead);
+  }
+
+  // however, if we've ended, then there's no point, and if we're already
+  // reading, then it's unnecessary.
+  if (state.ended || state.reading) {
+    doRead = false;
+    debug('reading or ended', doRead);
+  } else if (doRead) {
+    debug('do read');
+    state.reading = true;
+    state.sync = true;
+    // if the length is currently zero, then we *need* a readable event.
+    if (state.length === 0)
+      state.needReadable = true;
+    // call internal read method
+    this._read(state.highWaterMark);
+    state.sync = false;
+    // If _read pushed data synchronously, then `reading` will be false,
+    // and we need to re-evaluate how much data we can return to the user.
+    if (!state.reading)
+      n = howMuchToRead(nOrig, state);
+  }
+
+  var ret;
+  if (n > 0)
+    ret = fromList(n, state);
+  else
+    ret = null;
+
+  if (ret === null) {
+    state.needReadable = true;
+    n = 0;
+  } else {
+    state.length -= n;
+  }
+
+  if (state.length === 0) {
+    // If we have nothing in the buffer, then we want to know
+    // as soon as we *do* get something into the buffer.
+    if (!state.ended)
+      state.needReadable = true;
+
+    // If we tried to read() past the EOF, then emit end on the next tick.
+    if (nOrig !== n && state.ended)
+      endReadable(this);
+  }
+
+  if (ret !== null)
+    this.emit('data', ret);
+
+  return ret;
+}, _consuming=true, domain=null, finish=[function () { [native code] }, function onevent(arg1) {
+    var args = new Array(arguments.length)
+    var ee = this
+    var err = event === 'error'
+      ? arg1
+      : null
+
+    // copy args to prevent arguments escaping scope
+    for (var i = 0; i < args.length; i++) {
+      args[i] = arguments[i]
+    }
+
+    done(err, ee, event, args)
+  }], end=function onevent(arg1) {
+    var args = new Array(arguments.length)
+    var ee = this
+    var err = event === 'error'
+      ? arg1
+      : null
+
+    // copy args to prevent arguments escaping scope
+    for (var i = 0; i < args.length; i++) {
+      args[i] = arguments[i]
+    }
+
+    done(err, ee, event, args)
+  }, _eventsCount=2, _maxListeners=undefined, output=[], outputEncodings=[], outputCallbacks=[], outputSize=0, writable=true, _last=false, upgrading=false, chunkedEncoding=false, shouldKeepAlive=true, useChunkedEncodingByDefault=true, sendDate=true, _removedConnection=false, _removedContLen=false, _removedTE=false, _contentLength=null, _hasBody=true, _trailer=, finished=false, _headerSent=false, $ref=$["socket"], $ref=$["socket"], _header=null, _onPendingData=function () { [native code] }, _sent100=false, _expect_continue=false, $ref=$, , _startAt=undefined, _startTime=undefined, writeHead=function writeHead(statusCode) {
+    // set headers from arguments
+    var args = setWriteHeadHeaders.apply(this, arguments);
+
+    // fire listener
+    if (!fired) {
+      fired = true
+      listener.call(this)
+
+      // pass-along an updated status code
+      if (typeof args[0] === 'number' && this.statusCode !== args[0]) {
+        args[0] = this.statusCode
+        args.length = 1
+      }
+    }
+
+    prevWriteHead.apply(this, args);
+  }, __onFinished=function listener(err) {
+    if (msg.__onFinished === listener) msg.__onFinished = null
+    if (!listener.queue) return
+
+    var queue = listener.queue
+    listener.queue = null
+
+    for (var i = 0; i < queue.length; i++) {
+      queue[i](err, msg)
+    }
+  }, address=::1, family=IPv6, port=62408, $ref=$["socket"], httpVersionMajor=1, httpVersionMinor=1, httpVersion=1.1, complete=false, content-type=application/json, cache-control=no-cache, postman-token=99426180-4c45-423d-8746-d0eab9a20672, user-agent=PostmanRuntime/7.1.1, accept=*/*, host=localhost:3000, accept-encoding=gzip, deflate, connection=keep-alive, rawHeaders=[Content-Type, application/json, cache-control, no-cache, Postman-Token, 99426180-4c45-423d-8746-d0eab9a20672, User-Agent, PostmanRuntime/7.1.1, Accept, */*, Host, localhost:3000, accept-encoding, gzip, deflate, Connection, keep-alive], , rawTrailers=[], upgrade=false, url=/, method=GET, statusCode=null, statusMessage=null, $ref=$["socket"], _consuming=false, _dumped=false, next=function next(err) {
+    var layerError = err === 'route'
+      ? null
+      : err;
+
+    // remove added slash
+    if (slashAdded) {
+      req.url = req.url.substr(1);
+      slashAdded = false;
+    }
+
+    // restore altered req.url
+    if (removed.length !== 0) {
+      req.baseUrl = parentUrl;
+      req.url = protohost + removed + req.url.substr(protohost.length);
+      removed = '';
+    }
+
+    // signal to exit router
+    if (layerError === 'router') {
+      setImmediate(done, null)
+      return
+    }
+
+    // no more matching layers
+    if (idx >= stack.length) {
+      setImmediate(done, layerError);
+      return;
+    }
+
+    // get pathname of request
+    var path = getPathname(req);
+
+    if (path == null) {
+      return done(layerError);
+    }
+
+    // find next matching layer
+    var layer;
+    var match;
+    var route;
+
+    while (match !== true && idx < stack.length) {
+      layer = stack[idx++];
+      match = matchLayer(layer, path);
+      route = layer.route;
+
+      if (typeof match !== 'boolean') {
+        // hold on to layerError
+        layerError = layerError || match;
+      }
+
+      if (match !== true) {
+        continue;
+      }
+
+      if (!route) {
+        // process non-route handlers normally
+        continue;
+      }
+
+      if (layerError) {
+        // routes do not match with a pending error
+        match = false;
+        continue;
+      }
+
+      var method = req.method;
+      var has_method = route._handles_method(method);
+
+      // build up automatic options response
+      if (!has_method && method === 'OPTIONS') {
+        appendMethods(options, route._options());
+      }
+
+      // don't even bother matching route
+      if (!has_method && method !== 'HEAD') {
+        match = false;
+        continue;
+      }
+    }
+
+    // no match
+    if (match !== true) {
+      return done(layerError);
+    }
+
+    // store route for dispatch on change
+    if (route) {
+      req.route = route;
+    }
+
+    // Capture one-time layer values
+    req.params = self.mergeParams
+      ? mergeParams(layer.params, parentParams)
+      : layer.params;
+    var layerPath = layer.path;
+
+    // this should be done for the layer
+    self.process_params(layer, paramcalled, req, res, function (err) {
+      if (err) {
+        return next(layerError || err);
+      }
+
+      if (route) {
+        return layer.handle_request(req, res, next);
+      }
+
+      trim_prefix(layer, layerError, layerPath, path);
+    });
+  }, baseUrl=, originalUrl=/, protocol=null, slashes=null, auth=null, host=null, port=null, hostname=null, hash=null, search=null, query=null, pathname=/, path=/, href=/, _raw=/, , , $ref=$["socket"]["_httpMessage"], _startAt=[231208, 701488410], _startTime=Mon Jan 08 2018 16:17:05 GMT-0500 (Eastern Standard Time), _remoteAddress=::1, , path=/, stack=[handle=function (req, res) {
+  logger.info(req);
+  res.send('Hello World!');
+}, name=<anonymous>, params=undefined, path=undefined, keys=[], fast_star=false, fast_slash=false, method=get], get=true
+2018-01-08T21:17:06.005Z - info: GET / 200 29.916 ms - 12
+
+2018-01-08T21:18:33.530Z - info: Listening on port 3000
+2018-01-08T21:18:34.834Z - info: Status: queued. SM57c5cf3d1a684deca901eae24590260c
+2018-01-08T21:18:39.688Z - info: 
+2018-01-08T21:18:39.698Z - info: POST / 200 7.435 ms - -
+
+2018-01-08T21:20:10.110Z - info: 
+2018-01-08T21:20:10.115Z - info: POST / 200 1.901 ms - -
+
+2018-01-08T21:20:52.469Z - info: 
+2018-01-08T21:20:52.471Z - info: POST / 200 1.529 ms - -
+
+2018-01-08T21:20:57.773Z - info: 
+2018-01-08T21:20:57.777Z - info: POST / 200 3.285 ms - -
+
+2018-01-08T21:21:40.405Z - info: 
+2018-01-08T21:21:40.406Z - info: POST / 200 1.611 ms - -
+
+2018-01-08T21:22:54.227Z - info: Listening on port 3000
+2018-01-08T21:22:54.623Z - info: Status: queued. SM0047adfc9a704dd990486ff34c01e024
+2018-01-08T21:22:57.509Z - info:  key1=1
+2018-01-08T21:22:57.520Z - info: POST / 200 62.493 ms - -
+
+2018-01-08T21:23:20.451Z - info:  key1=1
+2018-01-08T21:23:20.453Z - info: POST / 200 2.064 ms - -
+
+2018-01-08T21:23:33.796Z - info:  key1=1, key2=2
+2018-01-08T21:23:33.797Z - info: POST / 200 1.548 ms - -
+
+2018-01-08T23:12:00.683Z - info: Listening on port 3000
+2018-01-08T23:12:01.132Z - info: Status: queued. SMe3cb6d141442430fa97ae92c442d077d
+2018-01-08T23:12:01.138Z - info: Error: undefined undefined
+2018-01-08T23:12:38.251Z - info: Listening on port 3000
+2018-01-08T23:12:38.736Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-08T23:12:38.738Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-08T23:12:38.739Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-08T23:13:17.048Z - info: Listening on port 3000
+2018-01-08T23:13:17.491Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-08T23:13:17.496Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-08T23:13:17.498Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-08T23:13:17.593Z - error: uncaughtException: Cannot read property 'error_code' of undefined date=Mon Jan 08 2018 18:13:17 GMT-0500 (Eastern Standard Time), pid=11920, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=67268608, heapTotal=57409536, heapUsed=33466960, external=1336583, loadavg=[0, 0, 0], uptime=238170.0836024, trace=[column=33, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=57, method=null, native=false, column=26, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Promise_done_rejected, line=861, method=null, native=false, column=23, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Rejected_then [as then], line=1323, method=null, native=false, column=23, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Rejected_dispatch [as dispatch], line=1311, method=null, native=false, column=30, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Pending_become_eachMessage_task, line=1369, method=null, native=false, column=19, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\asap.js, function=RawTask.call, line=40, method=call, native=false, column=29, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\raw.js, function=flush, line=50, method=null, native=false, column=7, file=internal/process/next_tick.js, function=_combinedTickCallback, line=131, method=null, native=false, column=9, file=internal/process/next_tick.js, function=process._tickCallback, line=180, method=_tickCallback, native=false], stack=[TypeError: Cannot read property 'error_code' of undefined,     at C:\Users\Alvin\Documents\MsgMeForPics\server.js:57:33,     at Promise_done_rejected (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:861:26),     at Rejected_then [as then] (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1323:23),     at Rejected_dispatch [as dispatch] (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1311:23),     at Pending_become_eachMessage_task (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1369:30),     at RawTask.call (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\asap.js:40:19),     at flush (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\raw.js:50:29),     at _combinedTickCallback (internal/process/next_tick.js:131:7),     at process._tickCallback (internal/process/next_tick.js:180:9)]
+2018-01-08T23:14:41.938Z - info: Listening on port 3000
+2018-01-08T23:14:42.417Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-08T23:14:42.422Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-08T23:14:42.423Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-08T23:14:42.457Z - error: uncaughtException: Cannot read property 'keys' of undefined date=Mon Jan 08 2018 18:14:42 GMT-0500 (Eastern Standard Time), pid=7504, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=66768896, heapTotal=58458112, heapUsed=24233072, external=1399437, loadavg=[0, 0, 0], uptime=238254.9514079, trace=[column=33, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=57, method=null, native=false, column=26, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Promise_done_rejected, line=861, method=null, native=false, column=23, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Rejected_then [as then], line=1323, method=null, native=false, column=23, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Rejected_dispatch [as dispatch], line=1311, method=null, native=false, column=30, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Pending_become_eachMessage_task, line=1369, method=null, native=false, column=19, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\asap.js, function=RawTask.call, line=40, method=call, native=false, column=29, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\raw.js, function=flush, line=50, method=null, native=false, column=7, file=internal/process/next_tick.js, function=_combinedTickCallback, line=131, method=null, native=false, column=9, file=internal/process/next_tick.js, function=process._tickCallback, line=180, method=_tickCallback, native=false], stack=[TypeError: Cannot read property 'keys' of undefined,     at C:\Users\Alvin\Documents\MsgMeForPics\server.js:57:33,     at Promise_done_rejected (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:861:26),     at Rejected_then [as then] (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1323:23),     at Rejected_dispatch [as dispatch] (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1311:23),     at Pending_become_eachMessage_task (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1369:30),     at RawTask.call (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\asap.js:40:19),     at flush (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\raw.js:50:29),     at _combinedTickCallback (internal/process/next_tick.js:131:7),     at process._tickCallback (internal/process/next_tick.js:180:9)]
+2018-01-08T23:16:04.618Z - info: Listening on port 3000
+2018-01-08T23:17:07.809Z - info: Listening on port 3000
+2018-01-08T23:17:30.227Z - info: Listening on port 3000
+2018-01-08T23:17:51.829Z - info: Listening on port 3000
+2018-01-08T23:18:24.634Z - info: Listening on port 3000
+2018-01-08T23:22:35.941Z - info: Listening on port 3000
+2018-01-08T23:22:36.384Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-08T23:22:36.387Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-08T23:22:36.388Z - error: The 'To' number +15005550001 is not a valid phone number. Status: undefined
+2018-01-08T23:26:27.924Z - info: Listening on port 3000
+2018-01-08T23:26:28.402Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-08T23:26:28.406Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-08T23:26:28.407Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-08T23:26:28.434Z - error: uncaughtException: Cannot read property 'sid' of undefined date=Mon Jan 08 2018 18:26:28 GMT-0500 (Eastern Standard Time), pid=2892, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=64032768, heapTotal=59506688, heapUsed=24207360, external=845801, loadavg=[0, 0, 0], uptime=238960.9272241, trace=[column=21, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=60, method=null, native=false, column=26, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Promise_done_rejected, line=861, method=null, native=false, column=23, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Rejected_then [as then], line=1323, method=null, native=false, column=23, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Rejected_dispatch [as dispatch], line=1311, method=null, native=false, column=30, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Pending_become_eachMessage_task, line=1369, method=null, native=false, column=19, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\asap.js, function=RawTask.call, line=40, method=call, native=false, column=29, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\raw.js, function=flush, line=50, method=null, native=false, column=7, file=internal/process/next_tick.js, function=_combinedTickCallback, line=131, method=null, native=false, column=9, file=internal/process/next_tick.js, function=process._tickCallback, line=180, method=_tickCallback, native=false], stack=[TypeError: Cannot read property 'sid' of undefined,     at C:\Users\Alvin\Documents\MsgMeForPics\server.js:60:21,     at Promise_done_rejected (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:861:26),     at Rejected_then [as then] (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1323:23),     at Rejected_dispatch [as dispatch] (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1311:23),     at Pending_become_eachMessage_task (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1369:30),     at RawTask.call (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\asap.js:40:19),     at flush (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\raw.js:50:29),     at _combinedTickCallback (internal/process/next_tick.js:131:7),     at process._tickCallback (internal/process/next_tick.js:180:9)]
+2018-01-08T23:32:45.107Z - error: uncaughtException: getMEssageId is not defined date=Mon Jan 08 2018 18:32:45 GMT-0500 (Eastern Standard Time), pid=13372, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=60956672, heapTotal=57933824, heapUsed=29824384, external=781834, loadavg=[0, 0, 0], uptime=239337.6079843, trace=[column=33, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=58, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[ReferenceError: getMEssageId is not defined,     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:58:33),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-08T23:33:05.210Z - info: Listening on port 3000
+2018-01-08T23:33:05.528Z - info: 
+2018-01-08T23:33:50.717Z - info: Listening on port 3000
+2018-01-08T23:33:51.208Z - info: 
+2018-01-08T23:33:51.275Z - error: uncaughtException: next is not a function date=Mon Jan 08 2018 18:33:51 GMT-0500 (Eastern Standard Time), pid=3772, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=64409600, heapTotal=58982400, heapUsed=24182720, external=1004201, loadavg=[0, 0, 0], uptime=239403.7690481, trace=[column=3, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=getMessageId, line=56, method=null, native=false, column=26, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Promise_done_rejected, line=861, method=null, native=false, column=23, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Rejected_then [as then], line=1323, method=null, native=false, column=23, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Rejected_dispatch [as dispatch], line=1311, method=null, native=false, column=30, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Pending_become_eachMessage_task, line=1369, method=null, native=false, column=19, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\asap.js, function=RawTask.call, line=40, method=call, native=false, column=29, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\raw.js, function=flush, line=50, method=null, native=false, column=7, file=internal/process/next_tick.js, function=_combinedTickCallback, line=131, method=null, native=false, column=9, file=internal/process/next_tick.js, function=process._tickCallback, line=180, method=_tickCallback, native=false], stack=[TypeError: next is not a function,     at getMessageId (C:\Users\Alvin\Documents\MsgMeForPics\server.js:56:3),     at Promise_done_rejected (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:861:26),     at Rejected_then [as then] (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1323:23),     at Rejected_dispatch [as dispatch] (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1311:23),     at Pending_become_eachMessage_task (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1369:30),     at RawTask.call (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\asap.js:40:19),     at flush (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\raw.js:50:29),     at _combinedTickCallback (internal/process/next_tick.js:131:7),     at process._tickCallback (internal/process/next_tick.js:180:9)]
+2018-01-08T23:34:46.542Z - info: Listening on port 3000
+2018-01-08T23:34:46.889Z - error: uncaughtException: err.keys is not a function date=Mon Jan 08 2018 18:34:46 GMT-0500 (Eastern Standard Time), pid=5040, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=64114688, heapTotal=59506688, heapUsed=24169712, external=845801, loadavg=[0, 0, 0], uptime=239459.3810456, trace=[column=19, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=getMessageId, line=55, method=null, native=false, column=26, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Promise_done_rejected, line=861, method=null, native=false, column=23, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Rejected_then [as then], line=1323, method=null, native=false, column=23, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Rejected_dispatch [as dispatch], line=1311, method=null, native=false, column=30, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Pending_become_eachMessage_task, line=1369, method=null, native=false, column=19, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\asap.js, function=RawTask.call, line=40, method=call, native=false, column=29, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\raw.js, function=flush, line=50, method=null, native=false, column=7, file=internal/process/next_tick.js, function=_combinedTickCallback, line=131, method=null, native=false, column=9, file=internal/process/next_tick.js, function=process._tickCallback, line=180, method=_tickCallback, native=false], stack=[TypeError: err.keys is not a function,     at getMessageId (C:\Users\Alvin\Documents\MsgMeForPics\server.js:55:19),     at Promise_done_rejected (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:861:26),     at Rejected_then [as then] (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1323:23),     at Rejected_dispatch [as dispatch] (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1311:23),     at Pending_become_eachMessage_task (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1369:30),     at RawTask.call (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\asap.js:40:19),     at flush (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\raw.js:50:29),     at _combinedTickCallback (internal/process/next_tick.js:131:7),     at process._tickCallback (internal/process/next_tick.js:180:9)]
+2018-01-08T23:35:26.725Z - info: Listening on port 3000
+2018-01-08T23:35:27.073Z - info: 
+2018-01-08T23:36:00.066Z - info: Listening on port 3000
+2018-01-08T23:36:00.441Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-08T23:36:00.450Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-08T23:36:00.452Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-08T23:39:27.745Z - info: Listening on port 3000
+2018-01-08T23:39:28.065Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-08T23:39:28.068Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-08T23:39:28.094Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 40021211
+2018-01-08T23:42:10.246Z - info: Listening on port 3000
+2018-01-08T23:42:10.717Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-08T23:42:10.721Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-08T23:42:10.721Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-08T23:42:10.754Z - error: uncaughtException: err.keys is not a function date=Mon Jan 08 2018 18:42:10 GMT-0500 (Eastern Standard Time), pid=10668, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=66727936, heapTotal=58458112, heapUsed=24225816, external=1399437, loadavg=[0, 0, 0], uptime=239903.2482584, trace=[column=22, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=59, method=null, native=false, column=26, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Promise_done_rejected, line=861, method=null, native=false, column=23, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Rejected_then [as then], line=1323, method=null, native=false, column=23, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Rejected_dispatch [as dispatch], line=1311, method=null, native=false, column=30, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Pending_become_eachMessage_task, line=1369, method=null, native=false, column=19, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\asap.js, function=RawTask.call, line=40, method=call, native=false, column=29, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\raw.js, function=flush, line=50, method=null, native=false, column=7, file=internal/process/next_tick.js, function=_combinedTickCallback, line=131, method=null, native=false, column=9, file=internal/process/next_tick.js, function=process._tickCallback, line=180, method=_tickCallback, native=false], stack=[TypeError: err.keys is not a function,     at C:\Users\Alvin\Documents\MsgMeForPics\server.js:59:22,     at Promise_done_rejected (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:861:26),     at Rejected_then [as then] (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1323:23),     at Rejected_dispatch [as dispatch] (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1311:23),     at Pending_become_eachMessage_task (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1369:30),     at RawTask.call (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\asap.js:40:19),     at flush (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\raw.js:50:29),     at _combinedTickCallback (internal/process/next_tick.js:131:7),     at process._tickCallback (internal/process/next_tick.js:180:9)]
+2018-01-08T23:42:28.962Z - info: Listening on port 3000
+2018-01-08T23:42:29.443Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-08T23:42:29.446Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-08T23:42:29.447Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-08T23:42:29.448Z - error: object
+2018-01-08T23:42:57.016Z - info: Listening on port 3000
+2018-01-08T23:42:57.598Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-08T23:42:57.601Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-08T23:42:57.602Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-08T23:42:57.603Z - error:  0=status, 1=message, 2=code, 3=moreInfo, 4=detail
+2018-01-08T23:43:34.466Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-08T23:43:34.476Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-08T23:43:34.478Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-08T23:43:34.479Z - error: 
+2018-01-08T23:43:52.507Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-08T23:43:52.515Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-08T23:43:52.516Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-08T23:43:52.517Z - error: 
+2018-01-08T23:44:18.590Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-08T23:44:18.600Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-08T23:44:18.602Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-08T23:44:18.603Z - error: https://www.twilio.com/docs/errors/21211
+2018-01-08T23:44:34.288Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-08T23:44:34.297Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-08T23:44:34.299Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-08T23:44:34.299Z - error: 
+2018-01-08T23:56:50.518Z - info: HISM5392c9bec1a24dd292dc9b6d62393c1c
+2018-01-08T23:58:39.803Z - info: object
+2018-01-08T23:58:56.584Z - info: 
+2018-01-08T23:59:26.168Z - info: 
+2018-01-09T00:00:33.264Z - error: uncaughtException: client.messages.create(...).fetch is not a function date=Mon Jan 08 2018 19:00:33 GMT-0500 (Eastern Standard Time), pid=14180, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=61227008, heapTotal=57933824, heapUsed=30369120, external=864774, loadavg=[0, 0, 0], uptime=241005.758916, trace=[column=7, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=34, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[TypeError: client.messages.create(...).fetch is not a function,     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:34:7),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T00:07:36.285Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-09T00:07:36.292Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-09T00:07:36.292Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-09T00:07:36.310Z - error: uncaughtException: Cannot read property 'body' of undefined date=Mon Jan 08 2018 19:07:36 GMT-0500 (Eastern Standard Time), pid=1132, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=64249856, heapTotal=58982400, heapUsed=23962512, external=1004201, loadavg=[0, 0, 0], uptime=241428.8073443, trace=[column=22, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=51, method=null, native=false, column=26, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Promise_done_rejected, line=861, method=null, native=false, column=23, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Rejected_then [as then], line=1323, method=null, native=false, column=23, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Rejected_dispatch [as dispatch], line=1311, method=null, native=false, column=30, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Pending_become_eachMessage_task, line=1369, method=null, native=false, column=19, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\asap.js, function=RawTask.call, line=40, method=call, native=false, column=29, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\raw.js, function=flush, line=50, method=null, native=false, column=7, file=internal/process/next_tick.js, function=_combinedTickCallback, line=131, method=null, native=false, column=9, file=internal/process/next_tick.js, function=process._tickCallback, line=180, method=_tickCallback, native=false], stack=[TypeError: Cannot read property 'body' of undefined,     at C:\Users\Alvin\Documents\MsgMeForPics\server.js:51:22,     at Promise_done_rejected (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:861:26),     at Rejected_then [as then] (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1323:23),     at Rejected_dispatch [as dispatch] (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1311:23),     at Pending_become_eachMessage_task (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1369:30),     at RawTask.call (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\asap.js:40:19),     at flush (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\asap\raw.js:50:29),     at _combinedTickCallback (internal/process/next_tick.js:131:7),     at process._tickCallback (internal/process/next_tick.js:180:9)]
+2018-01-09T00:07:57.113Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-09T00:07:57.121Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-09T00:07:57.123Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-09T00:07:57.123Z - error: 
+2018-01-09T00:08:40.348Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-09T00:08:40.356Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-09T00:08:40.356Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-09T00:08:40.358Z - error: 
+2018-01-09T00:11:23.478Z - info: Listening on port 3000
+2018-01-09T00:11:23.826Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-09T00:11:23.834Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-09T00:11:23.836Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-09T00:11:23.865Z - error: 
+2018-01-09T00:17:06.558Z - info: Listening on port 3000
+2018-01-09T00:17:07.078Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-09T00:17:07.079Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-09T00:17:07.081Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-09T00:17:07.081Z - error: 
+2018-01-09T00:18:52.981Z - info: Listening on port 3000
+2018-01-09T00:18:53.121Z - info: GET / 304 5.950 ms - -
+
+2018-01-09T00:18:54.789Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-09T00:18:54.790Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-09T00:18:54.791Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-09T00:18:54.792Z - error: 
+2018-01-09T00:19:03.936Z - info: GET / 200 2.312 ms - 12
+
+2018-01-09T00:19:04.231Z - info: GET /favicon.ico 404 2.007 ms - 150
+
+2018-01-09T00:19:07.567Z - info: GET / 304 0.674 ms - -
+
+2018-01-09T00:20:08.151Z - info: Listening on port 3000
+2018-01-09T00:20:08.885Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-09T00:20:08.891Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-09T00:20:08.893Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-09T00:20:59.839Z - info: Listening on port 3000
+2018-01-09T00:21:01.154Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-09T00:21:01.157Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-09T00:21:01.158Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-09T00:22:43.578Z - info: Listening on port 3000
+2018-01-09T00:22:44.312Z - info: Status: queued. SMfa237b0157f04ca2b9e1f8f0f904be36
+2018-01-09T00:22:44.449Z - info:  SmsSid=SMfa237b0157f04ca2b9e1f8f0f904be36, SmsStatus=sent, MessageStatus=sent, To=+16479888346, MessageSid=SMfa237b0157f04ca2b9e1f8f0f904be36, AccountSid=ACf972b5e3e131db53f9ca3b3bbf511ec7, From=+16474926563, ApiVersion=2010-04-01
+2018-01-09T00:22:44.461Z - info: POST / 200 78.410 ms - -
+
+2018-01-09T00:22:44.988Z - info:  SmsSid=SMfa237b0157f04ca2b9e1f8f0f904be36, SmsStatus=delivered, MessageStatus=delivered, To=+16479888346, MessageSid=SMfa237b0157f04ca2b9e1f8f0f904be36, AccountSid=ACf972b5e3e131db53f9ca3b3bbf511ec7, From=+16474926563, ApiVersion=2010-04-01
+2018-01-09T00:22:44.996Z - info: POST / 200 8.566 ms - -
+
+2018-01-09T00:27:34.502Z - info: Listening on port 3000
+2018-01-09T00:27:34.991Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-09T00:27:34.993Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-09T00:27:34.995Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-09T01:22:55.147Z - info: Listening on port 3000
+2018-01-09T01:22:56.412Z - info: AC8fc564869c3c3e057670c9903e610507
+2018-01-09T01:22:56.414Z - info: a2bc6ad271e6c4df30e0be5450c8d103
+2018-01-09T01:22:56.417Z - error: The 'To' number +15005550001 is not a valid phone number. Status: 400
+2018-01-09T01:23:39.021Z - info: Listening on port 3000
+2018-01-09T01:23:40.712Z - info: ACf972b5e3e131db53f9ca3b3bbf511ec7
+2018-01-09T01:23:40.715Z - info: 2bb63f28b36973a0b0d8a7d7ee5f86d4
+2018-01-09T01:23:40.720Z - error: The number +15005550001 is unverified. Trial accounts cannot send messages to unverified numbers; verify +15005550001 at twilio.com/user/account/phone-numbers/verified, or purchase a Twilio number to send messages to unverified numbers. Status: 400
+2018-01-09T01:35:57.697Z - error: uncaughtException: client.messages(...).delete is not a function date=Mon Jan 08 2018 20:35:57 GMT-0500 (Eastern Standard Time), pid=6780, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=64135168, heapTotal=57409536, heapUsed=33071920, external=1364003, loadavg=[0, 0, 0], uptime=246730.1938034, trace=[column=61, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=63, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[TypeError: client.messages(...).delete is not a function,     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:63:61),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T01:35:58.846Z - info: ACf972b5e3e131db53f9ca3b3bbf511ec7
+2018-01-09T01:35:58.862Z - info: 2bb63f28b36973a0b0d8a7d7ee5f86d4
+2018-01-09T01:35:58.868Z - error: The number +15005550001 is unverified. Trial accounts cannot send messages to unverified numbers; verify +15005550001 at twilio.com/user/account/phone-numbers/verified, or purchase a Twilio number to send messages to unverified numbers. Status: 400
+2018-01-09T01:36:31.531Z - error: uncaughtException: client.messages(...).delete is not a function date=Mon Jan 08 2018 20:36:31 GMT-0500 (Eastern Standard Time), pid=8680, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=63901696, heapTotal=56360960, heapUsed=32708712, external=1343678, loadavg=[0, 0, 0], uptime=246764.0280323, trace=[column=61, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=63, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[TypeError: client.messages(...).delete is not a function,     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:63:61),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T01:36:32.816Z - info: ACf972b5e3e131db53f9ca3b3bbf511ec7
+2018-01-09T01:36:32.819Z - info: 2bb63f28b36973a0b0d8a7d7ee5f86d4
+2018-01-09T01:36:32.820Z - error: The number +15005550001 is unverified. Trial accounts cannot send messages to unverified numbers; verify +15005550001 at twilio.com/user/account/phone-numbers/verified, or purchase a Twilio number to send messages to unverified numbers. Status: 400
+2018-01-09T01:47:14.287Z - error: uncaughtException: client.messages(...).delete is not a function date=Mon Jan 08 2018 20:47:14 GMT-0500 (Eastern Standard Time), pid=12720, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=62746624, heapTotal=56885248, heapUsed=31532856, external=1148383, loadavg=[0, 0, 0], uptime=247406.7827572, trace=[column=61, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=63, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[TypeError: client.messages(...).delete is not a function,     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:63:61),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T01:47:15.182Z - info: ACf972b5e3e131db53f9ca3b3bbf511ec7
+2018-01-09T01:47:15.186Z - info: 2bb63f28b36973a0b0d8a7d7ee5f86d4
+2018-01-09T01:47:15.187Z - error: The From phone number +15005550006 is not a valid, SMS-capable inbound phone number or short code for your account. Status: 400
+2018-01-09T01:48:30.672Z - error: uncaughtException: client.messages(...).delete is not a function date=Mon Jan 08 2018 20:48:30 GMT-0500 (Eastern Standard Time), pid=14256, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=62050304, heapTotal=56885248, heapUsed=31127488, external=1072071, loadavg=[0, 0, 0], uptime=247483.1681673, trace=[column=61, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=63, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[TypeError: client.messages(...).delete is not a function,     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:63:61),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T01:48:31.478Z - info: ACf972b5e3e131db53f9ca3b3bbf511ec7
+2018-01-09T01:48:31.480Z - info: 2bb63f28b36973a0b0d8a7d7ee5f86d4
+2018-01-09T01:48:31.481Z - error: The From phone number +15005550006 is not a valid, SMS-capable inbound phone number or short code for your account. Status: 400
+2018-01-09T01:52:25.862Z - error: uncaughtException: Promise delete no longer supported date=Mon Jan 08 2018 20:52:25 GMT-0500 (Eastern Standard Time), pid=11000, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=63963136, heapTotal=56360960, heapUsed=32650440, external=1343678, loadavg=[0, 0, 0], uptime=247718.3599154, trace=[column=11, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js, function=Promise.delete, line=1687, method=delete, native=false, column=69, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=65, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[Error: Promise delete no longer supported,     at Promise.delete (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\q\q.js:1687:11),     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:65:69),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T01:52:50.392Z - error: uncaughtException: client.messages(...).delete is not a function date=Mon Jan 08 2018 20:52:50 GMT-0500 (Eastern Standard Time), pid=7016, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=62525440, heapTotal=56885248, heapUsed=31303664, external=1112363, loadavg=[0, 0, 0], uptime=247742.8889078, trace=[column=61, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=65, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[TypeError: client.messages(...).delete is not a function,     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:65:61),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T01:55:17.293Z - error: uncaughtException: client.messages(...).delete is not a function date=Mon Jan 08 2018 20:55:17 GMT-0500 (Eastern Standard Time), pid=7012, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=61276160, heapTotal=56885248, heapUsed=30384568, external=958218, loadavg=[0, 0, 0], uptime=247889.7909357, trace=[column=61, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=66, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[TypeError: client.messages(...).delete is not a function,     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:66:61),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T01:56:20.273Z - error: uncaughtException: client.messages(...).get is not a function date=Mon Jan 08 2018 20:56:20 GMT-0500 (Eastern Standard Time), pid=1804, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=61263872, heapTotal=56885248, heapUsed=30387128, external=958218, loadavg=[0, 0, 0], uptime=247952.7697221, trace=[column=55, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=66, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[TypeError: client.messages(...).get is not a function,     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:66:55),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T02:01:19.205Z - error: uncaughtException: client.messages(...).delete is not a function date=Mon Jan 08 2018 21:01:19 GMT-0500 (Eastern Standard Time), pid=992, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=62443520, heapTotal=56885248, heapUsed=31283064, external=1140175, loadavg=[0, 0, 0], uptime=248251.7020196, trace=[column=61, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=66, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[TypeError: client.messages(...).delete is not a function,     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:66:61),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T02:01:41.634Z - error: uncaughtException: client.messages.delete is not a function date=Mon Jan 08 2018 21:01:41 GMT-0500 (Eastern Standard Time), pid=3908, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=62939136, heapTotal=56885248, heapUsed=31797448, external=1246426, loadavg=[0, 0, 0], uptime=248274.1319429, trace=[column=23, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=66, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[TypeError: client.messages.delete is not a function,     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:66:23),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T02:02:01.373Z - error: uncaughtException: Required parameter "opts" missing. date=Mon Jan 08 2018 21:02:01 GMT-0500 (Eastern Standard Time), pid=7880, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=63504384, heapTotal=56360960, heapUsed=32457856, external=1335470, loadavg=[0, 0, 0], uptime=248293.8673681, trace=[column=13, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\twilio\lib\rest\api\v2010\account\message.js, function=Function.create, line=93, method=create, native=false, column=17, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=66, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[Error: Required parameter "opts" missing.,     at Function.create (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\twilio\lib\rest\api\v2010\account\message.js:93:13),     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:66:17),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T02:02:29.573Z - error: uncaughtException: Required parameter "opts" missing. date=Mon Jan 08 2018 21:02:29 GMT-0500 (Eastern Standard Time), pid=5944, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=63545344, heapTotal=56360960, heapUsed=32313280, external=1292792, loadavg=[0, 0, 0], uptime=248322.074237, trace=[column=13, file=C:\Users\Alvin\Documents\MsgMeForPics\node_modules\twilio\lib\rest\api\v2010\account\message.js, function=Function.create, line=93, method=create, native=false, column=17, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=66, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[Error: Required parameter "opts" missing.,     at Function.create (C:\Users\Alvin\Documents\MsgMeForPics\node_modules\twilio\lib\rest\api\v2010\account\message.js:93:13),     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:66:17),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T02:03:03.200Z - error: uncaughtException: client.messages.get(...).delete is not a function date=Mon Jan 08 2018 21:03:03 GMT-0500 (Eastern Standard Time), pid=8256, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=61358080, heapTotal=56885248, heapUsed=30324464, external=940234, loadavg=[0, 0, 0], uptime=248355.7007384, trace=[column=65, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=66, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[TypeError: client.messages.get(...).delete is not a function,     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:66:65),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T02:03:19.780Z - error: uncaughtException: client.messages.get(...).delete is not a function date=Mon Jan 08 2018 21:03:19 GMT-0500 (Eastern Standard Time), pid=10460, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=63709184, heapTotal=56360960, heapUsed=32505568, external=1335470, loadavg=[0, 0, 0], uptime=248372.280957, trace=[column=65, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=66, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[TypeError: client.messages.get(...).delete is not a function,     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:66:65),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T02:03:42.931Z - error: uncaughtException: client.messages.delete is not a function date=Mon Jan 08 2018 21:03:42 GMT-0500 (Eastern Standard Time), pid=4888, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=63565824, heapTotal=56360960, heapUsed=32306600, external=1292792, loadavg=[0, 0, 0], uptime=248395.4258858, trace=[column=23, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=66, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[TypeError: client.messages.delete is not a function,     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:66:23),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T02:05:12.219Z - info: ACf972b5e3e131db53f9ca3b3bbf511ec7
+2018-01-09T02:05:12.236Z - info: 2bb63f28b36973a0b0d8a7d7ee5f86d4
+2018-01-09T02:05:12.237Z - error: The number +15005550001 is unverified. Trial accounts cannot send messages to unverified numbers; verify +15005550001 at twilio.com/user/account/phone-numbers/verified, or purchase a Twilio number to send messages to unverified numbers. Status: 400
+2018-01-09T02:07:18.899Z - error: uncaughtException: client.messages(...).delete is not a function date=Mon Jan 08 2018 21:07:18 GMT-0500 (Eastern Standard Time), pid=6696, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=63934464, heapTotal=56360960, heapUsed=32539624, external=1335470, loadavg=[0, 0, 0], uptime=248611.3924922, trace=[column=61, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=66, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[TypeError: client.messages(...).delete is not a function,     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:66:61),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T02:08:25.489Z - error: uncaughtException: client.messages.delete is not a function date=Mon Jan 08 2018 21:08:25 GMT-0500 (Eastern Standard Time), pid=9292, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=61816832, heapTotal=56885248, heapUsed=30914296, external=1063863, loadavg=[0, 0, 0], uptime=248677.9889242, trace=[column=23, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=66, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[TypeError: client.messages.delete is not a function,     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:66:23),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T02:09:48.844Z - error: uncaughtException: client.messages.delete is not a function date=Mon Jan 08 2018 21:09:48 GMT-0500 (Eastern Standard Time), pid=13856, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=60407808, heapTotal=57409536, heapUsed=29468856, external=799742, loadavg=[0, 0, 0], uptime=248761.3414206, trace=[column=23, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=66, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[TypeError: client.messages.delete is not a function,     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:66:23),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T02:10:59.355Z - error: uncaughtException: client.messages(...).delete is not a function date=Mon Jan 08 2018 21:10:59 GMT-0500 (Eastern Standard Time), pid=10996, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=61612032, heapTotal=56885248, heapUsed=30618656, external=1013426, loadavg=[0, 0, 0], uptime=248831.8532557, trace=[column=35, file=C:\Users\Alvin\Documents\MsgMeForPics\server.js, function=null, line=67, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false, column=10, file=module.js, function=Module.runMain, line=676, method=runMain, native=false, column=16, file=bootstrap_node.js, function=startup, line=187, method=null, native=false, column=3, file=bootstrap_node.js, function=null, line=608, method=null, native=false], stack=[TypeError: client.messages(...).delete is not a function,     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\server.js:67:35),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3),     at Function.Module.runMain (module.js:676:10),     at startup (bootstrap_node.js:187:16),     at bootstrap_node.js:608:3]
+2018-01-09T02:38:07.158Z - info: Listening on port 3000
+2018-01-09T02:38:21.898Z - info:  ToCountry=CA, ToState=ON, SmsMessageSid=SM70f564fee370a93a04deb5b86e121f73, NumMedia=0, ToCity=Toronto, FromZip=, SmsSid=SM70f564fee370a93a04deb5b86e121f73, FromState=ON, SmsStatus=received, FromCity=TORONTO, Body=Hi, FromCountry=CA, To=+16474926563, ToZip=, NumSegments=1, MessageSid=SM70f564fee370a93a04deb5b86e121f73, AccountSid=ACf972b5e3e131db53f9ca3b3bbf511ec7, From=+16479888346, ApiVersion=2010-04-01
+2018-01-09T02:38:21.906Z - info: POST / 200 - - 24.909 ms
+
+2018-01-09T02:43:20.805Z - info: Listening on port 3000
+2018-01-09T02:43:28.586Z - info:  ToCountry=CA, ToState=ON, SmsMessageSid=SM157de17e48022efeee4d12020c4f05e6, NumMedia=0, ToCity=Toronto, FromZip=, SmsSid=SM157de17e48022efeee4d12020c4f05e6, FromState=ON, SmsStatus=received, FromCity=TORONTO, Body=hey, FromCountry=CA, To=+16474926563, ToZip=, NumSegments=1, MessageSid=SM157de17e48022efeee4d12020c4f05e6, AccountSid=ACf972b5e3e131db53f9ca3b3bbf511ec7, From=+16479888346, ApiVersion=2010-04-01
+2018-01-09T02:43:28.592Z - info: POST / 200 - - 18.048 ms
+
+2018-01-09T02:47:43.265Z - info: Listening on port 3000
+2018-01-09T02:48:00.794Z - info:  ToCountry=CA, ToState=ON, SmsMessageSid=SM8e251556758cc617def9999b1330bc63, NumMedia=0, ToCity=Toronto, FromZip=, SmsSid=SM8e251556758cc617def9999b1330bc63, FromState=ON, SmsStatus=received, FromCity=TORONTO, Body=test, FromCountry=CA, To=+16474926563, ToZip=, NumSegments=1, MessageSid=SM8e251556758cc617def9999b1330bc63, AccountSid=ACf972b5e3e131db53f9ca3b3bbf511ec7, From=+16479888346, ApiVersion=2010-04-01
+2018-01-09T02:48:00.802Z - info: POST / 200 - - 26.427 ms
+
+2018-01-09T02:51:27.128Z - info: Listening on port 3000
+2018-01-09T02:51:36.725Z - info:  ToCountry=CA, ToState=ON, SmsMessageSid=SM2c02779c7e4318c5d0863a3ea0a4f479, NumMedia=0, ToCity=Toronto, FromZip=, SmsSid=SM2c02779c7e4318c5d0863a3ea0a4f479, FromState=ON, SmsStatus=received, FromCity=TORONTO, Body=test again, FromCountry=CA, To=+16474926563, ToZip=, NumSegments=1, MessageSid=SM2c02779c7e4318c5d0863a3ea0a4f479, AccountSid=ACf972b5e3e131db53f9ca3b3bbf511ec7, From=+16479888346, ApiVersion=2010-04-01
+2018-01-09T02:51:36.731Z - info: POST / 200 - - 20.192 ms
+
+2018-01-09T02:56:07.823Z - info: Listening on port 3000
+2018-01-09T02:56:16.772Z - info:  ToCountry=CA, ToState=ON, SmsMessageSid=SMf0c3c32dc3d0c82ede830360709826ef, NumMedia=0, ToCity=Toronto, FromZip=, SmsSid=SMf0c3c32dc3d0c82ede830360709826ef, FromState=ON, SmsStatus=received, FromCity=TORONTO, Body=hi, FromCountry=CA, To=+16474926563, ToZip=, NumSegments=1, MessageSid=SMf0c3c32dc3d0c82ede830360709826ef, AccountSid=ACf972b5e3e131db53f9ca3b3bbf511ec7, From=+16479888346, ApiVersion=2010-04-01
+2018-01-09T02:56:16.778Z - info: POST / 200 - - 20.284 ms
+
+2018-01-09T02:58:30.822Z - info: POST /sms 500 1287 - 5.857 ms
+
+2018-01-09T02:59:20.340Z - info: Listening on port 3000
+2018-01-09T02:59:26.023Z - info:  key1=1, key2=2
+2018-01-09T02:59:26.027Z - info: POST /sms 200 88 - 18.298 ms
+
+2018-01-09T02:59:50.136Z - info:  ToCountry=CA, ToState=ON, SmsMessageSid=SM0b0655c2206e074a2cbabad2618f5373, NumMedia=0, ToCity=Toronto, FromZip=, SmsSid=SM0b0655c2206e074a2cbabad2618f5373, FromState=ON, SmsStatus=received, FromCity=TORONTO, Body=hehe, FromCountry=CA, To=+16474926563, ToZip=, NumSegments=1, MessageSid=SM0b0655c2206e074a2cbabad2618f5373, AccountSid=ACf972b5e3e131db53f9ca3b3bbf511ec7, From=+16479888346, ApiVersion=2010-04-01
+2018-01-09T02:59:50.140Z - info: POST / 200 - - 9.010 ms
+
+2018-01-09T03:01:57.358Z - info: Listening on port 3000
+2018-01-09T03:02:50.084Z - info:  key1=1, key2=2
+2018-01-09T03:02:50.086Z - info: POST /sms 200 88 - 19.634 ms
+
+2018-01-09T03:03:03.537Z - info:  ToCountry=CA, ToState=ON, SmsMessageSid=SMc1ddafbd55b24c53f5cc5f2d5240c404, NumMedia=0, ToCity=Toronto, FromZip=, SmsSid=SMc1ddafbd55b24c53f5cc5f2d5240c404, FromState=ON, SmsStatus=received, FromCity=TORONTO, Body=hi, FromCountry=CA, To=+16474926563, ToZip=, NumSegments=1, MessageSid=SMc1ddafbd55b24c53f5cc5f2d5240c404, AccountSid=ACf972b5e3e131db53f9ca3b3bbf511ec7, From=+16479888346, ApiVersion=2010-04-01
+2018-01-09T03:03:03.545Z - info: POST / 200 - - 14.427 ms
+
+2018-01-09T03:05:00.443Z - info:  ToCountry=CA, ToState=ON, SmsMessageSid=SMe3c66e2ac0d298a7d7d63e6bd917b57e, NumMedia=0, ToCity=Toronto, FromZip=, SmsSid=SMe3c66e2ac0d298a7d7d63e6bd917b57e, FromState=ON, SmsStatus=received, FromCity=TORONTO, Body=good, FromCountry=CA, To=+16474926563, ToZip=, NumSegments=1, MessageSid=SMe3c66e2ac0d298a7d7d63e6bd917b57e, AccountSid=ACf972b5e3e131db53f9ca3b3bbf511ec7, From=+16479888346, ApiVersion=2010-04-01
+2018-01-09T03:05:00.446Z - info: POST /sms 200 88 - 2.180 ms
+
+2018-01-09T03:07:12.535Z - info: Listening on port 3000
+2018-01-09T03:07:14.430Z - info: POST /sms 200 88 - 24.271 ms
+
+2018-01-09T03:08:15.908Z - info: Listening on port 3000
+2018-01-09T03:08:17.947Z - info:  key1=1, key2=2
+2018-01-09T03:08:17.955Z - info: POST /sms 200 88 - 19.376 ms
+
+2018-01-09T03:14:47.663Z - info: Listening on port 3000
+2018-01-09T03:16:42.294Z - info: Listening on port 3000

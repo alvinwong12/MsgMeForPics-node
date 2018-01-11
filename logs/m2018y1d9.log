@@ -1,0 +1,81 @@
+2018-01-09 19:22:19.7030 - info: production
+2018-01-09 19:27:19.4410 - info: test
+2018-01-09 19:47:59.4130 - info: development
+2018-01-09 19:47:59.4320 - info: Listening on port 3000
+2018-01-09 19:49:58.4670 - info: Listening on port 3000
+2018-01-09 19:50:03.8680 - info:  0=ToCountry, 1=ToState, 2=SmsMessageSid, 3=NumMedia, 4=ToCity, 5=FromZip, 6=SmsSid, 7=FromState, 8=SmsStatus, 9=FromCity, 10=Body, 11=FromCountry, 12=To, 13=ToZip, 14=NumSegments, 15=MessageSid, 16=AccountSid, 17=From, 18=ApiVersion
+2018-01-09 19:50:03.9220 - info: POST /sms 200 133.904 ms - 88
+
+2018-01-09 19:54:59.8220 - info: Listening on port 3000
+2018-01-09 19:55:06.4950 - info: POST /sms 200 59.812 ms - 218
+
+2018-01-09 21:27:43.7800 - info: Listening on port 3000
+2018-01-09 21:28:19.7810 - info: Received SMS: {"ToCountry":"CA","ToState":"ON","SmsMessageSid":"SMe0a6f263927323f55d5990aa02c46df2","NumMedia":"0","ToCity":"Toronto","FromZip":"","SmsSid":"SMe0a6f263927323f55d5990aa02c46df2","FromState":"ON","SmsStatus":"received","FromCity":"TORONTO","Body":"  \n","FromCountry":"CA","To":"+16474926563","ToZip":"","NumSegments":"1","MessageSid":"SMe0a6f263927323f55d5990aa02c46df2","AccountSid":"ACf972b5e3e131db53f9ca3b3bbf511ec7","From":"+16479888346","ApiVersion":"2010-04-01"}
+2018-01-09 21:28:19.7860 - info: Sending +16479888346 a respond with this response: {"body":"Cannot search for a picture because you have only enter empty spaces","media":"","respondTo":"+16479888346"}
+2018-01-09 21:28:19.7950 - info: POST /sms 200 32.503 ms - 167
+
+2018-01-09 21:28:20.1850 - info: GET / 200 1.777 ms - 12
+
+2018-01-09 21:33:14.4820 - info: Listening on port 3000
+2018-01-09 21:33:33.6210 - info: Received SMS: {"key1":1,"key2":2}
+2018-01-09 21:33:33.6230 - info: Sending undefined a respond with this response: {"body":"Please tell me what you want to search","media":""}
+2018-01-09 21:33:33.6240 - info: Please tell me what you want to search
+2018-01-09 21:33:33.6250 - info:  
+2018-01-09 21:33:33.6280 - info: POST /sms 200 21.673 ms - -
+
+2018-01-09 21:33:56.5560 - info: Listening on port 3000
+2018-01-09 21:34:02.5620 - info: Received SMS: {"key1":1,"key2":2}
+2018-01-09 21:34:02.5640 - info: Sending undefined a respond with this response: {"body":"Please tell me what you want to search","media":""}
+2018-01-09 21:34:02.5650 - info: Please tell me what you want to search
+2018-01-09 21:34:02.5660 - info:  
+2018-01-09 21:34:02.5710 - info: POST /sms 200 24.079 ms - -
+
+2018-01-09 21:35:54.0820 - info: Listening on port 3000
+2018-01-09 21:35:56.9490 - info: Received SMS: {"key1":1,"key2":2}
+2018-01-09 21:35:56.9510 - info: Sending undefined a respond with this response: {"body":"Please tell me what you want to search"}
+2018-01-09 21:35:56.9510 - info: Please tell me what you want to search
+2018-01-09 21:35:56.9520 - info: 
+2018-01-09 21:35:56.9560 - info: POST /sms 200 20.186 ms - -
+
+2018-01-09 21:37:20.2130 - info: Listening on port 3000
+2018-01-09 21:37:24.5580 - info: Received SMS: {"key1":1,"key2":2}
+2018-01-09 21:37:24.5590 - info: Sending undefined a respond with this response: {"body":"Please tell me what you want to search"}
+2018-01-09 21:37:24.5600 - info: Please tell me what you want to search
+2018-01-09 21:37:24.5600 - info: undefind
+2018-01-09 21:37:24.5650 - info: POST /sms 200 19.738 ms - -
+
+2018-01-09 21:40:49.8260 - info: Listening on port 3000
+2018-01-09 21:40:53.6800 - info: Received SMS: {"key1":1,"key2":2}
+2018-01-09 21:40:53.6810 - info: Sending undefined a respond with this response: {"body":"Please tell me what you want to search","media":null}
+2018-01-09 21:40:53.6820 - info: Please tell me what you want to search
+2018-01-09 21:40:53.6820 - info: null
+2018-01-09 21:40:53.6860 - info: POST /sms 200 21.299 ms - -
+
+2018-01-09 21:44:28.2260 - info: Received SMS: {"key1":1,"key2":2}
+2018-01-09 21:44:28.2270 - info: Sending undefined a respond with this response: {"body":"Please tell me what you want to search","media":null}
+2018-01-09 21:44:28.2280 - info: Please tell me what you want to search
+2018-01-09 21:44:28.2280 - info: null
+2018-01-09 21:44:28.2300 - info: POST /sms 200 2.981 ms - -
+
+2018-01-09 21:46:13.4410 - info: Listening on port 3000
+2018-01-09 21:46:29.4610 - info: Received SMS: {"ToCountry":"CA","ToState":"ON","SmsMessageSid":"SM60d2e28551a4c3bb69818063e4799395","NumMedia":"0","ToCity":"Toronto","FromZip":"","SmsSid":"SM60d2e28551a4c3bb69818063e4799395","FromState":"ON","SmsStatus":"received","FromCity":"TORONTO","Body":"  \n","FromCountry":"CA","To":"+16474926563","ToZip":"","NumSegments":"1","MessageSid":"SM60d2e28551a4c3bb69818063e4799395","AccountSid":"ACf972b5e3e131db53f9ca3b3bbf511ec7","From":"+16479888346","ApiVersion":"2010-04-01"}
+2018-01-09 21:46:29.4640 - info: Sending +16479888346 a respond with this response: {"body":"Cannot search for a picture because you have only enter empty spaces","media":null,"respondTo":"+16479888346"}
+2018-01-09 21:46:29.4710 - info: POST /sms 200 22.824 ms - 159
+
+2018-01-09 21:46:44.5910 - info: Received SMS: {"ToCountry":"CA","ToState":"ON","SmsMessageSid":"SM7feb8225e9671d3bd1fcb7a458d64959","NumMedia":"0","ToCity":"Toronto","FromZip":"","SmsSid":"SM7feb8225e9671d3bd1fcb7a458d64959","FromState":"ON","SmsStatus":"received","FromCity":"TORONTO","Body":"nodejs","FromCountry":"CA","To":"+16474926563","ToZip":"","NumSegments":"1","MessageSid":"SM7feb8225e9671d3bd1fcb7a458d64959","AccountSid":"ACf972b5e3e131db53f9ca3b3bbf511ec7","From":"+16479888346","ApiVersion":"2010-04-01"}
+2018-01-09 21:46:44.5920 - info: Sending +16479888346 a respond with this response: {"body":"Here is a picture of nodejs","media":"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Node.js_logo.svg/1200px-Node.js_logo.svg.png","respondTo":"+16479888346"}
+2018-01-09 21:46:44.5940 - info: POST /sms 200 3.635 ms - 235
+
+2018-01-09 21:57:44.2550 - error: uncaughtException: Cannot find module 'logger' date=Tue Jan 09 2018 21:57:44 GMT-0500 (Eastern Standard Time), pid=896, uid=null, gid=null, cwd=C:\Users\Alvin\Documents\MsgMeForPics, execPath=C:\Program Files\nodejs\node.exe, version=v8.9.1, argv=[C:\Program Files\nodejs\node.exe, C:\Users\Alvin\Documents\MsgMeForPics\server.js], rss=61186048, heapTotal=57933824, heapUsed=29927704, external=823455, loadavg=[0, 0, 0], uptime=338036.7525374, trace=[column=15, file=module.js, function=Module._resolveFilename, line=536, method=_resolveFilename, native=false, column=25, file=module.js, function=Module._load, line=466, method=_load, native=false, column=17, file=module.js, function=Module.require, line=579, method=require, native=false, column=18, file=internal/module.js, function=require, line=11, method=null, native=false, column=76, file=C:\Users\Alvin\Documents\MsgMeForPics\utils\response.js, function=null, line=1, method=null, native=false, column=30, file=module.js, function=Module._compile, line=635, method=_compile, native=false, column=10, file=module.js, function=Module._extensions..js, line=646, method=.js, native=false, column=32, file=module.js, function=Module.load, line=554, method=load, native=false, column=12, file=module.js, function=tryModuleLoad, line=497, method=null, native=false, column=3, file=module.js, function=Module._load, line=489, method=_load, native=false], stack=[Error: Cannot find module 'logger',     at Function.Module._resolveFilename (module.js:536:15),     at Function.Module._load (module.js:466:25),     at Module.require (module.js:579:17),     at require (internal/module.js:11:18),     at Object.<anonymous> (C:\Users\Alvin\Documents\MsgMeForPics\utils\response.js:1:76),     at Module._compile (module.js:635:30),     at Object.Module._extensions..js (module.js:646:10),     at Module.load (module.js:554:32),     at tryModuleLoad (module.js:497:12),     at Function.Module._load (module.js:489:3)]
+2018-01-09 21:58:33.5180 - info: Listening on port 3000
+2018-01-09 21:58:50.8780 - info: Received SMS: {"key1":1,"key2":2}
+2018-01-09 21:58:50.8860 - info: POST /sms 500 23.354 ms - 1372
+
+2018-01-09 21:59:09.2320 - info: Listening on port 3000
+2018-01-09 21:59:12.9060 - info: Received SMS: {"key1":1,"key2":2}
+2018-01-09 21:59:12.9080 - info: Sending undefined a respond with this response: {"body":"Please tell me what you want to search","media":null}
+2018-01-09 21:59:57.5510 - info: Listening on port 3000
+2018-01-09 22:00:10.5850 - info: Received SMS: {"key1":1,"key2":2}
+2018-01-09 22:00:10.5870 - info: Sending undefined a respond with this response: {"body":"Please tell me what you want to search","media":null}
+2018-01-09 22:00:10.5960 - info: POST /sms 200 33.312 ms - -
+
