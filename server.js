@@ -1,5 +1,4 @@
 var express = require('express');
-var app = express();
 var morgan = require('morgan');
 var twilio = require('twilio');
 var logger = require("./utils/logger");
@@ -7,6 +6,7 @@ const bodyParser = require('body-parser')
 var generateResponse = require('./utils/response')
 
 const MessagingResponse = twilio.twiml.MessagingResponse;
+var app = express();
 
 var accountSid;
 var authToken;
@@ -82,8 +82,7 @@ app.use(bodyParser.text({ type: 'text/html' }))
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.get('/', function (req, res) {
-
-  res.send('Hello World!');
+  res.status(200).send('Twilio server 1.0.0');
 });
 
 
