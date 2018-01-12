@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/alvinwong12/MsgMeForPics-node.git"   
+    "url": "https://github.com/alvinwong12/MsgMeForPics-node.git"
   },
   "author": "Alvin",
   "license": "ISC",
@@ -20,7 +20,7 @@
     "moment": "^2.20.1",
     "morgan": "^1.9.0",
     "strip-ansi": "^4.0.0",
-    "tumblr": "^0.4.1",
+    "tumblr.js": "^1.1.1",
     "twilio": "^3.11.0",
     "winston": "^2.4.0"
   },
