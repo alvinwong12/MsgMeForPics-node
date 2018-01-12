@@ -1,0 +1,8 @@
+{
+    "verbose": true,
+    "ignore": ["*.test.js", "logs/", "*.json", "node_modules/", ".vscode/"],
+    "ext": "js",
+    "env": {
+        "NODE_ENV": "development"
+    }
+}
