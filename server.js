@@ -4,6 +4,9 @@ var twilio = require('twilio');
 var logger = require("./utils/logger");
 const bodyParser = require('body-parser')
 var generateResponse = require('./utils/response')
+var tumblr = require('tumblr.js')
+var flickrapi = require('flickrapi');
+
 
 const MessagingResponse = twilio.twiml.MessagingResponse;
 var app = express();
@@ -12,18 +15,18 @@ var accountSid;
 var authToken;
 
 const PORT = process.env.PORT || 3000;
-
+/*
 // Twilio Credentials
 if (process.env.NODE_ENV == "test"){
   // Test credentials
-  accountSid = 'AC8fc564869c3c3e057670c9903e610507'; 
-  authToken = 'a2bc6ad271e6c4df30e0be5450c8d103';  
+  accountSid = ''; 
+  authToken = '';  
 } else{
   // Real Credentials
-  accountSid = 'ACf972b5e3e131db53f9ca3b3bbf511ec7';
-  authToken = '2bb63f28b36973a0b0d8a7d7ee5f86d4';
+  accountSid = '';
+  authToken = '';
 }
-
+*/
 // Twilio client
 const client = twilio(accountSid, authToken);
 
@@ -115,9 +118,49 @@ app.post('/sms', function(req, res, next){
   return res.status(200).send(twiml.toString());
 });
 
+/*
+// Tumblr
+var tumblrClient = tumblr.createClient({
+  
+});
+*/
+/*
+tumblrClient.taggedPosts('nba', { limit: 1}, function(err, res){
+  if (err) logger.info(err.message + " " + err);
+  logger.info(JSON.stringify(res));
+});
 
+*/
+
+// Flickr
+const FLICKR_CREDENTIALS = {
+  api_key: '',
+  secret: ''
+}
+/*
+flickrapi.authenticate(FLICKR_CREDENTIALS, function(err, flickr) {
+  // we can now use "flickr" as our API object
+  if (err) {
+    logger.info(err.message)
+  }
+  else{
+    logger.info("Authentication successful")
+  }
+});
+*/
+/*
+flickrapi.photos.search({
+  user_id: flickr.options.user_id,
+  page: 1,
+  per_page: 500
+}, function(err, result) {
+  // result is Flickr's response
+});
+*/
+/*
 app.listen(PORT, function () {
   logger.info(`Listening on port ${PORT}`);
 });
+*/
 
 
