@@ -4,17 +4,49 @@ var twilio = require('twilio');
 var logger = require("./utils/logger");
 const bodyParser = require('body-parser')
 var generateResponse = require('./utils/response')
+var flickrapi = require('./utils/flickrapi')
 var tumblr = require('tumblr.js')
-var flickrapi = require('flickrapi');
+var polling = require('./utils/polling');
 
 
 const MessagingResponse = twilio.twiml.MessagingResponse;
 var app = express();
 
+// Set up logger
+if (process.env.NODE_ENV == "development"){
+  app.use(morgan("dev", {stream: logger.stream}))
+}
+else{
+  app.use(morgan("tiny", {stream: logger.stream}))
+}
+
 var accountSid;
 var authToken;
 
 const PORT = process.env.PORT || 3000;
+
+// Get Flickr object
+var flickr
+var flickrInitTimer
+flickrapi.authenticate()
+
+function pollFlickr(){
+  logger.info("Polling...")
+  if (flickrapi.getClient() == undefined) return;
+
+  if (flickrapi.getClient() == false){
+    logger.error('Something went wrong during Flickr authentication')
+  }
+  else{
+    flickr = flickrapi.getClient()
+    logger.info('Successfully polled Flickr object');
+  }
+  polling.endPoll(flickrInitTimer)
+}
+
+flickrInitTimer = polling.poll(pollFlickr, 2000)
+
+
 /*
 // Twilio Credentials
 if (process.env.NODE_ENV == "test"){
@@ -28,24 +60,9 @@ if (process.env.NODE_ENV == "test"){
 }
 */
 // Twilio client
-const client = twilio(accountSid, authToken);
+//const client = twilio(accountSid, authToken);
 
-var message;
-if (process.env.NODE_ENV == "development"){
-  message = {
-    to: '+15005550001',
-    from: '+15005550006',
-    body: 'Hello World',
-  }
-}
-else{
-  message = {
-    to: '+15005550001',
-    from: '+16474926563',
-    body: 'Hello World',
-    
-  }
-}
+
 
 /*
 client.messages.create(message, function(err, res){
@@ -72,12 +89,6 @@ client.messages(messageSid).remove()
 //client.messages.each((message) => message.remove());
 
 
-if (process.env.NODE_ENV == "development"){
-  app.use(morgan("dev", {stream: logger.stream}))
-}
-else{
-  app.use(morgan("tiny", {stream: logger.stream}))
-}
 
 app.use(bodyParser.json())
 app.use(bodyParser.raw({ type: 'application/vnd.custom-type' }))
@@ -98,24 +109,65 @@ app.post('/MessageStatus', function(req,res){
   logger.info(req.body)
 });
 
+function generateMediaURL(media, size="medium"){
+  const SIZES = {
+    small: 'm',
+    square: 's',
+    thumbnail: 't',
+    medium: 'z',
+    large: 'b'
 
+  }
+  mediaURL =  `https://farm${media.farm}.staticflickr.com/${media.server}/${media.id}_${media.secret}_${SIZES[size]}.jpg`;
+  return mediaURL;
+}
 
 app.post('/sms', function(req, res, next){
   logger.info(`Received SMS: ${JSON.stringify(req.body)}`)
 
   const twiml = new MessagingResponse();
 
-  var response = generateResponse(req.body)
-  var message = twiml.message();
-  //  Send Respond message
+  let splitedMsg = req.body.Body.toString().trim().split("%")
+  var param = splitedMsg.length > 1 ? splitedMsg[1].trim() : "mms"
+  
+  var searchOption = {
+    tags: splitedMsg[0].trim(),
+    content_type: 4,
+    media: 'photos',
+    page: 1,
+    per_page: 1,
+    authenticated: true
+  }
+ 
+  flickr.photos.search(searchOption, function(err, response) {
+    // result is Flickr's response
+    if (err) {
+      logger.error(err.message)
+      res.send(err)
+    }
+    else{
+      //logger.info(JSON.stringify(res.photos))
+      photos = response.photos
+      let media = generateMediaURL(photos.photo[0]);
 
-  logger.info(`Sending ${response.respondTo} a respond with this response: ${JSON.stringify(response)}`)
-  message.body(response.body);
-  if (response.media != null) message.media(response.media);
+      var response = generateResponse(req.body, media, param)
+      var message = twiml.message();
+      //  Send Respond message
+    
+      logger.info(`Sending ${response.respondTo} a respond with this response: ${JSON.stringify(response)}`)
+      message.body(response.body);
+      if (response.media != null) message.media(response.media);
+    
+      //  Set XML Response header
+      res.set('Content-Type', 'text/xml');
+      return res.status(200).send(twiml.toString());
+    }
+    
+  });
 
-  //  Set XML Response header
-  res.set('Content-Type', 'text/xml');
-  return res.status(200).send(twiml.toString());
+ 
+
+  
 });
 
 /*
@@ -132,35 +184,10 @@ tumblrClient.taggedPosts('nba', { limit: 1}, function(err, res){
 
 */
 
-// Flickr
-const FLICKR_CREDENTIALS = {
-  api_key: '',
-  secret: ''
-}
-/*
-flickrapi.authenticate(FLICKR_CREDENTIALS, function(err, flickr) {
-  // we can now use "flickr" as our API object
-  if (err) {
-    logger.info(err.message)
-  }
-  else{
-    logger.info("Authentication successful")
-  }
-});
-*/
-/*
-flickrapi.photos.search({
-  user_id: flickr.options.user_id,
-  page: 1,
-  per_page: 500
-}, function(err, result) {
-  // result is Flickr's response
-});
-*/
-/*
 app.listen(PORT, function () {
   logger.info(`Listening on port ${PORT}`);
+  //logger.info(flickrapi.authenticate)
+
 });
-*/
 
 
