@@ -3,11 +3,11 @@ var flickrapi = require('flickrapi');
 var flickr;
 
 const FLICKR_CREDENTIALS = {
-    api_key: 'ddbf7ad260187ed55fce77300c411d8a',
-    secret: 'b79bd7a7e99ebf1f',
-    user_id: "154881801@N04",
-    access_token: '72157689409023612-f777f6e48db299ba',
-    access_token_secret: '95fb94cc3b2dbf9c',
+    api_key: process.env.FLICKR_API_KEY,
+    secret: process.env.FLICKR_SECRET,
+    user_id: process.env.FLICKR_USER_ID,
+    access_token: process.env.FLICKR_ACCESS_TOKEN,
+    access_token_secret: process.env.FLICKR_ACCESS_TOKEN_SECRET,
     requestOptions: {
       timeout: 20000
     }
