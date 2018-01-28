@@ -109,6 +109,15 @@ app.post('/MessageStatus', function(req,res){
   logger.info(req.body)
 });
 
+app.get('/test-flickr', function(req, res){
+  if (flickr){
+    res.status(200).send();
+  }
+  else{
+    res.status(404).send("Flickr object not found")
+  }
+})
+
 function generateMediaURL(media, size="medium"){
   const SIZES = {
     small: 'm',
@@ -164,10 +173,7 @@ app.post('/sms', function(req, res, next){
     }
     
   });
-
- 
-
-  
+   
 });
 
 /*
@@ -186,7 +192,6 @@ tumblrClient.taggedPosts('nba', { limit: 1}, function(err, res){
 
 app.listen(PORT, function () {
   logger.info(`Listening on port ${PORT}`);
-  //logger.info(flickrapi.authenticate)
 
 });
 
